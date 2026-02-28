@@ -3,12 +3,20 @@
 
 <h2>Daily Entry</h2>
 
+<!-- DATE SELECTION (ONLY ONCE) -->
+<form method="GET" class="mb-4">
+    <label>Select Date</label>
+    <input type="date" name="date" value="{{ selected_date }}" required>
+    <button class="btn btn-primary btn-sm">Set Date</button>
+</form>
+
+{% if selected_date %}
+
+<h5>Adding entries for: {{ selected_date }}</h5>
+
 <form method="POST">
 
-<div class="mb-3">
-    <label>Date</label>
-    <input type="date" name="date" class="form-control">
-</div>
+<input type="hidden" name="date" value="{{ selected_date }}">
 
 <div class="mb-3">
     <label>Member</label>
@@ -40,8 +48,10 @@
 </div>
 
 <br>
-<button class="btn btn-success">Submit</button>
+<button class="btn btn-success">Add Entry</button>
 
 </form>
+
+{% endif %}
 
 {% endblock %}

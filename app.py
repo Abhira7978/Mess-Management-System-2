@@ -173,8 +173,12 @@ def daily():
     c.execute("SELECT * FROM members")
     members = c.fetchall()
 
+    selected_date = request.args.get('date')
+
     if request.method == 'POST':
         member_id = request.form['member']
+        date = request.form['date']
+
         breakfast = 20 if request.form.get('breakfast') else 0
         veg = 50 if request.form.get('veg') else 0
         nonveg = 90 if request.form.get('nonveg') else 0
@@ -182,17 +186,21 @@ def daily():
 
         service = 10 if (breakfast or veg or nonveg or night) else 0
         total = breakfast + veg + nonveg + night + service
-        date = request.form['date']
 
         c.execute("""INSERT INTO meals
                      (member_id,date,breakfast,veg,nonveg,night,service,total)
                      VALUES (?,?,?,?,?,?,?,?)""",
                      (member_id,date,breakfast,veg,nonveg,night,service,total))
+
         conn.commit()
+        return redirect(f'/daily?date={date}')
 
     conn.close()
 
-    return render_template("daily.html", members=members)
+    return render_template("daily.html",
+                           members=members,
+                           selected_date=selected_date)
+    
 # ---------- MONTHLY REPORT ----------
 @app.route('/report')
 def report():
