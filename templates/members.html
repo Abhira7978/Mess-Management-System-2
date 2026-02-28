@@ -3,32 +3,38 @@
 
 <h2>Members</h2>
 
-<form method="POST" class="row g-3">
+<!-- ADD MEMBER FORM -->
+<form method="POST" class="row g-3 mb-4">
     <div class="col-md-5">
-        <input name="name" class="form-control" placeholder="Member Name">
+        <input name="name" class="form-control" placeholder="Member Name" required>
     </div>
     <div class="col-md-5">
-        <input name="room" class="form-control" placeholder="Room No">
+        <input name="room" class="form-control" placeholder="Room No" required>
     </div>
     <div class="col-md-2">
-        <button class="btn btn-primary w-100">Add</button>
+        <button class="btn btn-primary w-100">Add Member</button>
     </div>
 </form>
 
-<hr>
-
+<!-- MEMBERS TABLE -->
 <table class="table table-bordered">
 <tr>
     <th>Name</th>
     <th>Room</th>
+    <th>Action</th>
 </tr>
 
 {% for m in members %}
 <tr>
     <td>{{ m[1] }}</td>
     <td>{{ m[2] }}</td>
+    <td>
+        <a href="/edit_member/{{ m[0] }}" class="btn btn-sm btn-warning">Edit</a>
+        <a href="/delete_member/{{ m[0] }}" class="btn btn-sm btn-danger">Delete</a>
+    </td>
 </tr>
 {% endfor %}
+
 </table>
 
 {% endblock %}

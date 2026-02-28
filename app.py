@@ -124,7 +124,43 @@ def members():
     conn.close()
 
     return render_template("members.html", members=data)
+#-----------Delete Member----------
+@app.route('/delete_member/<int:id>')
+def delete_member(id):
+    if 'user' not in session:
+        return redirect('/')
 
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    c.execute("DELETE FROM members WHERE id=?", (id,))
+    conn.commit()
+    conn.close()
+
+    return redirect('/members')
+#-----------Edit Member------------
+@app.route('/edit_member/<int:id>', methods=['GET','POST'])
+def edit_member(id):
+    if 'user' not in session:
+        return redirect('/')
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    if request.method == 'POST':
+        name = request.form['name']
+        room = request.form['room']
+        c.execute("UPDATE members SET name=?, room=? WHERE id=?",
+                  (name, room, id))
+        conn.commit()
+        conn.close()
+        return redirect('/members')
+
+    c.execute("SELECT * FROM members WHERE id=?", (id,))
+    member = c.fetchone()
+    conn.close()
+
+    return render_template("edit_member.html", member=member)
 # ---------- DAILY ENTRY ----------
 @app.route('/daily', methods=['GET','POST'])
 def daily():

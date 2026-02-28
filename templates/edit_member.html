@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2>Edit Member</h2>
+
+<form method="POST">
+    <div class="mb-3">
+        <label>Name</label>
+        <input name="name" value="{{ member[1] }}" class="form-control">
+    </div>
+
+    <div class="mb-3">
+        <label>Room</label>
+        <input name="room" value="{{ member[2] }}" class="form-control">
+    </div>
+
+    <button class="btn btn-success">Update</button>
+</form>
+
+{% endblock %}
