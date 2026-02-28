@@ -81,16 +81,29 @@ def dashboard():
 
     today = datetime.today().strftime('%Y-%m-%d')
     c.execute("SELECT SUM(total) FROM meals WHERE date=?", (today,))
-    today_collection = c.fetchone()[0]
-    if today_collection is None:
-        today_collection = 0
+    today_collection = c.fetchone()[0] or 0
+
+    # Monthly data for chart
+    current_month = datetime.today().strftime('%Y-%m')
+    c.execute("""
+        SELECT date, SUM(total)
+        FROM meals
+        WHERE date LIKE ?
+        GROUP BY date
+    """, (current_month + '%',))
+
+    data = c.fetchall()
+
+    dates = [row[0] for row in data]
+    totals = [row[1] for row in data]
 
     conn.close()
 
     return render_template("dashboard.html",
                            total_members=total_members,
-                           today_collection=today_collection)
-
+                           today_collection=today_collection,
+                           dates=dates,
+                           totals=totals)
 # ---------- MEMBERS ----------
 @app.route('/members', methods=['GET','POST'])
 def members():

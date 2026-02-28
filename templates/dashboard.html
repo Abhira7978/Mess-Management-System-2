@@ -6,14 +6,14 @@
 <div class="row">
 
     <div class="col-md-6">
-        <div class="card shadow p-3 mb-3 bg-white rounded">
+        <div class="card shadow p-3 mb-3">
             <h5>Total Members</h5>
             <h2>{{ total_members }}</h2>
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="card shadow p-3 mb-3 bg-white rounded">
+        <div class="card shadow p-3 mb-3">
             <h5>Today's Collection</h5>
             <h2>₹{{ today_collection }}</h2>
         </div>
@@ -23,8 +23,35 @@
 
 <hr>
 
+<h4>Monthly Collection Chart</h4>
+<canvas id="myChart"></canvas>
+
+<hr>
+
 <a href="/members" class="btn btn-primary">Manage Members</a>
 <a href="/daily" class="btn btn-success">Daily Entry</a>
 <a href="/report" class="btn btn-warning">Monthly Report</a>
+
+<!-- Chart JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('myChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ dates | tojson }},
+        datasets: [{
+            label: 'Daily Collection',
+            data: {{ totals | tojson }},
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+    }
+});
+</script>
 
 {% endblock %}
