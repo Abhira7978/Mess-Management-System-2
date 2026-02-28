@@ -1,25 +1,81 @@
-<h2>Monthly Report</h2>
+{% extends "layout.html" %}
+{% block content %}
 
-<form method="GET">
-    Month: <input name="month" placeholder="MM">
-    Year: <input name="year" placeholder="YYYY">
-    <button>Filter</button>
-</form>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📊 Monthly Report</h2>
+    <a href="/export_excel" class="btn btn-success">
+        ⬇ Export to Excel
+    </a>
+</div>
 
-<hr>
+<!-- FILTER CARD -->
+<div class="card shadow-sm p-3 mb-4">
+    <form method="GET" class="row g-3 align-items-end">
 
-<h3>Total Collection: ₹{{ monthly_total }}</h3>
+        <div class="col-md-4">
+            <label class="form-label">Month</label>
+            <input name="month" value="{{ month }}" class="form-control" placeholder="MM">
+        </div>
 
-<hr>
+        <div class="col-md-4">
+            <label class="form-label">Year</label>
+            <input name="year" value="{{ year }}" class="form-control" placeholder="YYYY">
+        </div>
 
-<h3>Member Wise Report</h3>
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100">
+                Filter Report
+            </button>
+        </div>
 
-{% for row in data %}
-    {{ row[0] }} → ₹{{ row[1] }}<br>
-{% endfor %}
+    </form>
+</div>
+
+<!-- TOTAL COLLECTION CARD -->
+<div class="card shadow-sm p-4 mb-4 text-center bg-light">
+    <h5>Total Collection</h5>
+    <h1 class="text-success">₹{{ monthly_total }}</h1>
+</div>
+
+<!-- MEMBER REPORT TABLE -->
+<div class="card shadow-sm p-3">
+    <h5 class="mb-3">Member Wise Report</h5>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Member Name</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        {% if data %}
+            {% for row in data %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>₹{{ row[1] }}</td>
+                <td>
+                    <span class="badge bg-success">
+                        Calculated
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center text-muted">
+                    No data available for selected month
+                </td>
+            </tr>
+        {% endif %}
+
+        </tbody>
+    </table>
+</div>
 
 <br>
-<a href="/dashboard">Back</a>
-<a href="/export_excel" class="btn btn-success mb-3">
-    Export to Excel
-</a>
+<a href="/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+
+{% endblock %}
