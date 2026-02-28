@@ -1,13 +1,19 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 import sqlite3
 from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = "mess_secret_key"
 
 # ---------- DATABASE ----------
 def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
+
+    c.execute('''CREATE TABLE IF NOT EXISTS users(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT,
+                password TEXT)''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS members(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,9 +36,43 @@ def init_db():
 
 init_db()
 
-# ---------- HOME ----------
-@app.route('/')
+# Create default admin
+def create_admin():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE username='admin'")
+    if not c.fetchone():
+        c.execute("INSERT INTO users (username,password) VALUES (?,?)",("admin","admin"))
+        conn.commit()
+    conn.close()
+
+create_admin()
+
+# ---------- LOGIN ----------
+@app.route('/', methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE username=? AND password=?", (username,password))
+        user = c.fetchone()
+        conn.close()
+
+        if user:
+            session['user'] = username
+            return redirect('/dashboard')
+
+    return render_template('login.html')
+
+# ---------- DASHBOARD ----------
+@app.route('/dashboard')
 def dashboard():
+    if 'user' not in session:
+        return redirect('/')
+
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
 
@@ -40,7 +80,6 @@ def dashboard():
     total_members = c.fetchone()[0]
 
     today = datetime.today().strftime('%Y-%m-%d')
-
     c.execute("SELECT SUM(total) FROM meals WHERE date=?", (today,))
     today_collection = c.fetchone()[0]
     if today_collection is None:
@@ -48,17 +87,16 @@ def dashboard():
 
     conn.close()
 
-    return f"""
-    <h1>Mess Dashboard</h1>
-    <h3>Total Members: {total_members}</h3>
-    <h3>Today's Collection: ₹{today_collection}</h3>
-    <a href='/members'>Manage Members</a><br>
-    <a href='/daily'>Daily Entry</a>
-    """
+    return render_template("dashboard.html",
+                           total_members=total_members,
+                           today_collection=today_collection)
 
-# ---------- ADD MEMBER ----------
+# ---------- MEMBERS ----------
 @app.route('/members', methods=['GET','POST'])
 def members():
+    if 'user' not in session:
+        return redirect('/')
+
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
 
@@ -72,16 +110,14 @@ def members():
     data = c.fetchall()
     conn.close()
 
-    html = "<h2>Members</h2><form method='POST'>Name:<input name='name'> Room:<input name='room'><button>Add</button></form><hr>"
-    for m in data:
-        html += f"{m[1]} (Room {m[2]})<br>"
-
-    html += "<br><a href='/'>Back</a>"
-    return html
+    return render_template("members.html", members=data)
 
 # ---------- DAILY ENTRY ----------
 @app.route('/daily', methods=['GET','POST'])
 def daily():
+    if 'user' not in session:
+        return redirect('/')
+
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
 
@@ -97,7 +133,6 @@ def daily():
 
         service = 10 if (breakfast or veg or nonveg or night) else 0
         total = breakfast + veg + nonveg + night + service
-
         date = request.form['date']
 
         c.execute("""INSERT INTO meals
@@ -108,22 +143,13 @@ def daily():
 
     conn.close()
 
-    html = "<h2>Daily Entry</h2><form method='POST'>"
-    html += "Date:<input type='date' name='date'><br><br>"
-    html += "Member:<select name='member'>"
-    for m in members:
-        html += f"<option value='{m[0]}'>{m[1]}</option>"
-    html += "</select><br><br>"
+    return render_template("daily.html", members=members)
 
-    html += """
-    Breakfast<input type='checkbox' name='breakfast'><br>
-    Veg<input type='checkbox' name='veg'><br>
-    NonVeg<input type='checkbox' name='nonveg'><br>
-    Night<input type='checkbox' name='night'><br>
-    <button>Submit</button></form>
-    <br><a href='/'>Back</a>
-    """
-    return html
+# ---------- LOGOUT ----------
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect('/')
 
 if __name__ == "__main__":
     app.run(debug=True)
