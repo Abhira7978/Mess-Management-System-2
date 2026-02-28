@@ -50,6 +50,12 @@
             <tr>
                 <td>{{ row[0] }}</td>
                 <td>₹{{ row[1] }}</td>
+<td>
+    <a href="/generate_bill/{{ row[2] }}" 
+       class="btn btn-sm btn-primary">
+       Generate Bill
+    </a>
+</td>
             </tr>
             {% endfor %}
         {% else %}

@@ -228,12 +228,14 @@ def report():
     date_pattern = f"{year}-{month}-%"
 
     c.execute("""
-        SELECT members.name, SUM(meals.total)
-        FROM meals
-        JOIN members ON meals.member_id = members.id
-        WHERE meals.date LIKE ?
-        GROUP BY members.name
-    """, (date_pattern,))
+              
+              
+              SELECT members.id, members.name, SUM(meals.total)
+              FROM meals
+              JOIN members ON meals.member_id = members.id
+              WHERE meals.date LIKE ?
+              GROUP BY members.id
+        """, (date_pattern,))
 
     data = c.fetchall()
 
@@ -254,6 +256,72 @@ def report():
                            monthly_total=monthly_total,
                            month=month,
                            year=year)
+
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import pagesizes
+from flask import send_file
+import io
+
+@app.route('/generate_bill/<int:member_id>')
+def generate_bill(member_id):
+    if 'user' not in session:
+        return redirect('/')
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    # Get member details
+    c.execute("SELECT name, room FROM members WHERE id=?", (member_id,))
+    member = c.fetchone()
+
+    # Get total bill
+    c.execute("""
+        SELECT SUM(total) FROM meals
+        WHERE member_id=?
+    """, (member_id,))
+    total = c.fetchone()[0] or 0
+
+    conn.close()
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
+    elements = []
+
+    styles = getSampleStyleSheet()
+
+    elements.append(Paragraph("<b>KHANA KHAZANA</b>", styles['Title']))
+    elements.append(Spacer(1, 20))
+
+    elements.append(Paragraph(f"Member Name: {member[0]}", styles['Normal']))
+    elements.append(Paragraph(f"Room No: {member[1]}", styles['Normal']))
+    elements.append(Spacer(1, 20))
+
+    data = [
+        ["Description", "Amount (₹)"],
+        ["Total Due", str(total)]
+    ]
+
+    table = Table(data)
+    table.setStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.grey),
+        ('GRID', (0,0), (-1,-1), 1, colors.black),
+    ])
+
+    elements.append(table)
+    elements.append(Spacer(1, 40))
+
+    elements.append(Paragraph("Thank You For Choosing KHANA KHAZANA", styles['Normal']))
+
+    doc.build(elements)
+
+    buffer.seek(0)
+
+    return send_file(buffer,
+                     download_name="Due_Bill.pdf",
+                     as_attachment=True)
+
 import pandas as pd
 from flask import send_file
 import io
