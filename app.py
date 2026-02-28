@@ -238,7 +238,36 @@ def report():
                            monthly_total=monthly_total,
                            month=month,
                            year=year)
+import pandas as pd
+from flask import send_file
+import io
 
+@app.route('/export_excel')
+def export_excel():
+    if 'user' not in session:
+        return redirect('/')
+
+    conn = sqlite3.connect('database.db')
+    
+    query = """
+        SELECT members.name AS Name,
+               members.room AS Room,
+               meals.date AS Date,
+               meals.total AS Total
+        FROM meals
+        JOIN members ON meals.member_id = members.id
+    """
+    
+    df = pd.read_sql_query(query, conn)
+    conn.close()
+
+    output = io.BytesIO()
+    df.to_excel(output, index=False)
+    output.seek(0)
+
+    return send_file(output,
+                     download_name="mess_report.xlsx",
+                     as_attachment=True)
 # ---------- LOGOUT ----------
 @app.route('/logout')
 def logout():
