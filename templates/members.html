@@ -1,0 +1,16 @@
+<h2>Members</h2>
+
+<form method="POST">
+    Name: <input name="name">
+    Room: <input name="room">
+    <button>Add</button>
+</form>
+
+<hr>
+
+{% for m in members %}
+    {{ m[1] }} (Room {{ m[2] }})<br>
+{% endfor %}
+
+<br>
+<a href="/dashboard">Back</a>

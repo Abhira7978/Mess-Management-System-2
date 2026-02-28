@@ -1,0 +1,22 @@
+<h2>Daily Entry</h2>
+
+<form method="POST">
+    Date: <input type="date" name="date"><br><br>
+
+    Member:
+    <select name="member">
+        {% for m in members %}
+            <option value="{{ m[0] }}">{{ m[1] }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    Breakfast <input type="checkbox" name="breakfast"><br>
+    Veg <input type="checkbox" name="veg"><br>
+    NonVeg <input type="checkbox" name="nonveg"><br>
+    Night <input type="checkbox" name="night"><br><br>
+
+    <button>Submit</button>
+</form>
+
+<br>
+<a href="/dashboard">Back</a>
