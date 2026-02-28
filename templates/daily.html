@@ -1,22 +1,47 @@
+{% extends "layout.html" %}
+{% block content %}
+
 <h2>Daily Entry</h2>
 
 <form method="POST">
-    Date: <input type="date" name="date"><br><br>
 
-    Member:
-    <select name="member">
+<div class="mb-3">
+    <label>Date</label>
+    <input type="date" name="date" class="form-control">
+</div>
+
+<div class="mb-3">
+    <label>Member</label>
+    <select name="member" class="form-control">
         {% for m in members %}
-            <option value="{{ m[0] }}">{{ m[1] }}</option>
+        <option value="{{ m[0] }}">{{ m[1] }}</option>
         {% endfor %}
-    </select><br><br>
+    </select>
+</div>
 
-    Breakfast <input type="checkbox" name="breakfast"><br>
-    Veg <input type="checkbox" name="veg"><br>
-    NonVeg <input type="checkbox" name="nonveg"><br>
-    Night <input type="checkbox" name="night"><br><br>
+<div class="form-check">
+    <input type="checkbox" name="breakfast" class="form-check-input">
+    <label class="form-check-label">Breakfast (₹20)</label>
+</div>
 
-    <button>Submit</button>
-</form>
+<div class="form-check">
+    <input type="checkbox" name="veg" class="form-check-input">
+    <label class="form-check-label">Veg (₹50)</label>
+</div>
+
+<div class="form-check">
+    <input type="checkbox" name="nonveg" class="form-check-input">
+    <label class="form-check-label">NonVeg (₹90)</label>
+</div>
+
+<div class="form-check">
+    <input type="checkbox" name="night" class="form-check-input">
+    <label class="form-check-label">Night (₹30)</label>
+</div>
 
 <br>
-<a href="/dashboard">Back</a>
+<button class="btn btn-success">Submit</button>
+
+</form>
+
+{% endblock %}

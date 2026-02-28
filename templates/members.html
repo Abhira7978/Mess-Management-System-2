@@ -1,16 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+
 <h2>Members</h2>
 
-<form method="POST">
-    Name: <input name="name">
-    Room: <input name="room">
-    <button>Add</button>
+<form method="POST" class="row g-3">
+    <div class="col-md-5">
+        <input name="name" class="form-control" placeholder="Member Name">
+    </div>
+    <div class="col-md-5">
+        <input name="room" class="form-control" placeholder="Room No">
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100">Add</button>
+    </div>
 </form>
 
 <hr>
 
-{% for m in members %}
-    {{ m[1] }} (Room {{ m[2] }})<br>
-{% endfor %}
+<table class="table table-bordered">
+<tr>
+    <th>Name</th>
+    <th>Room</th>
+</tr>
 
-<br>
-<a href="/dashboard">Back</a>
+{% for m in members %}
+<tr>
+    <td>{{ m[1] }}</td>
+    <td>{{ m[2] }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
