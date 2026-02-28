@@ -1,0 +1,22 @@
+<h2>Monthly Report</h2>
+
+<form method="GET">
+    Month: <input name="month" placeholder="MM">
+    Year: <input name="year" placeholder="YYYY">
+    <button>Filter</button>
+</form>
+
+<hr>
+
+<h3>Total Collection: ₹{{ monthly_total }}</h3>
+
+<hr>
+
+<h3>Member Wise Report</h3>
+
+{% for row in data %}
+    {{ row[0] }} → ₹{{ row[1] }}<br>
+{% endfor %}
+
+<br>
+<a href="/dashboard">Back</a>

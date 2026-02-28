@@ -144,6 +144,51 @@ def daily():
     conn.close()
 
     return render_template("daily.html", members=members)
+# ---------- MONTHLY REPORT ----------
+@app.route('/report')
+def report():
+    if 'user' not in session:
+        return redirect('/')
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+
+    month = request.args.get('month')
+    year = request.args.get('year')
+
+    if not month or not year:
+        month = datetime.today().strftime('%m')
+        year = datetime.today().strftime('%Y')
+
+    date_pattern = f"{year}-{month}-%"
+
+    c.execute("""
+        SELECT members.name, SUM(meals.total)
+        FROM meals
+        JOIN members ON meals.member_id = members.id
+        WHERE meals.date LIKE ?
+        GROUP BY members.name
+    """, (date_pattern,))
+
+    data = c.fetchall()
+
+    c.execute("""
+        SELECT SUM(total)
+        FROM meals
+        WHERE date LIKE ?
+    """, (date_pattern,))
+
+    monthly_total = c.fetchone()[0]
+    if monthly_total is None:
+        monthly_total = 0
+
+    conn.close()
+
+    return render_template("report.html",
+                           data=data,
+                           monthly_total=monthly_total,
+                           month=month,
+                           year=year)
 
 # ---------- LOGOUT ----------
 @app.route('/logout')
