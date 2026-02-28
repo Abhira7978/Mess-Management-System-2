@@ -1,40 +1,63 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h2>Members</h2>
+<h2>Manage Members</h2>
 
-<!-- ADD MEMBER FORM -->
-<form method="POST" class="row g-3 mb-4">
-    <div class="col-md-5">
-        <input name="name" class="form-control" placeholder="Member Name" required>
-    </div>
-    <div class="col-md-5">
-        <input name="room" class="form-control" placeholder="Room No" required>
-    </div>
-    <div class="col-md-2">
-        <button class="btn btn-primary w-100">Add Member</button>
-    </div>
-</form>
+<div class="card p-3 mb-4 shadow-sm">
+    <form method="POST" class="row g-3">
 
-<!-- MEMBERS TABLE -->
-<table class="table table-bordered">
-<tr>
-    <th>Name</th>
-    <th>Room</th>
-    <th>Action</th>
-</tr>
+        <div class="col-md-5">
+            <input name="name" class="form-control"
+                   placeholder="Member Name" required>
+        </div>
 
-{% for m in members %}
-<tr>
-    <td>{{ m[1] }}</td>
-    <td>{{ m[2] }}</td>
-    <td>
-        <a href="/edit_member/{{ m[0] }}" class="btn btn-sm btn-warning">Edit</a>
-        <a href="/delete_member/{{ m[0] }}" class="btn btn-sm btn-danger">Delete</a>
-    </td>
-</tr>
-{% endfor %}
+        <div class="col-md-5">
+            <input name="room" class="form-control"
+                   placeholder="Room No" required>
+        </div>
 
-</table>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">
+                Add Member
+            </button>
+        </div>
+
+    </form>
+
+    {% if error %}
+        <div class="alert alert-danger mt-3">
+            {{ error }}
+        </div>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm p-3">
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Room</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for m in members %}
+        <tr>
+            <td>{{ m[1] }}</td>
+            <td>{{ m[2] }}</td>
+            <td>
+                <a href="/edit_member/{{ m[0] }}"
+                   class="btn btn-sm btn-warning">Edit</a>
+
+                <a href="/delete_member/{{ m[0] }}"
+                   class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+</div>
 
 {% endblock %}

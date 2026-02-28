@@ -17,8 +17,8 @@ def init_db():
 
     c.execute('''CREATE TABLE IF NOT EXISTS members(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                room TEXT)''')
+                name TEXT UNIQUE,
+                room TEXT UNIQUE)''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS meals(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -112,18 +112,26 @@ def members():
 
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
+    error = None
 
     if request.method == 'POST':
-        name = request.form['name']
-        room = request.form['room']
-        c.execute("INSERT INTO members (name, room) VALUES (?,?)",(name,room))
-        conn.commit()
+        name = request.form['name'].strip()
+        room = request.form['room'].strip()
+
+        if name == "" or room == "":
+            error = "All fields required!"
+        else:
+            try:
+                c.execute("INSERT INTO members (name, room) VALUES (?,?)",(name,room))
+                conn.commit()
+            except:
+                error = "Member already exists!"
 
     c.execute("SELECT * FROM members")
     data = c.fetchall()
     conn.close()
 
-    return render_template("members.html", members=data)
+    return render_template("members.html", members=data, error=error)
 #-----------Delete Member----------
 @app.route('/delete_member/<int:id>')
 def delete_member(id):
